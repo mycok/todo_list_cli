@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/myok/todo_list_cli/todo"
 )
@@ -11,6 +11,11 @@ import (
 const todoFileName = ".todo.json"
 
 func main() {
+	task := flag.String("task", "", "Todo item to be added to the todo list")
+	list := flag.Bool("list", false, "List all available todo items")
+	done := flag.Int("done", 0, "Mark the todo list item as complete")
+	flag.Parse()
+
 	l := &todo.List{}
 	if err := l.Get(todoFileName); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -19,18 +24,34 @@ func main() {
 	}
 
 	switch {
-	case len(os.Args) == 1:
-		for _, item := range *l {
-			fmt.Println(item.Task)
+	case *list:
+		for _, todo := range *l {
+			if !todo.Done {
+				fmt.Println(todo.Task)
+			}
 		}
-	default:
-		todoName := strings.Join(os.Args[1:], " ")
-		l.Add(todoName)
+	case *done > 0:
+		if err := l.Complete(*done); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			os.Exit(1)
+		}
+
 		if err := l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 
 			os.Exit(1)
 		}
+	case *task != "":
+		l.Add(*task)
+		if err := l.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			os.Exit(1)
+		}
+
+	default:
+		fmt.Fprintln(os.Stderr, "Invalid option")
+		os.Exit(1)
 	}
 }
-

@@ -1,17 +1,16 @@
 package main
 
 import (
-	"testing"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
+	"testing"
 )
 
 var (
-	binName = "todo"
+	binName  = "todo"
 	fileName = ".todo.json"
 )
 
@@ -33,14 +32,12 @@ func TestMain(m *testing.M) {
 
 	result := m.Run()
 
-
 	fmt.Println("....Cleaning up....")
 	os.Remove(binName)
 	os.Remove(fileName)
 
 	os.Exit(result)
 }
-
 
 func TestTodoCLI(t *testing.T) {
 	todo := "todo test number 1"
@@ -53,14 +50,14 @@ func TestTodoCLI(t *testing.T) {
 	cmdPath := filepath.Join(dir, binName)
 
 	t.Run("Add new todo", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, strings.Split(todo, " ")...)
+		cmd := exec.Command(cmdPath, "-task", todo)
 		if err := cmd.Run(); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("List todos", func(t *testing.T) {
-		cmd := exec.Command(cmdPath)
+		cmd := exec.Command(cmdPath, "-list")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(err)

@@ -7,7 +7,6 @@ import (
 	"github.com/myok/todo_list_cli/todo"
 )
 
-// TestMarkAsComplete tests todo.Complete method functionality.
 func TestTodoListFunctionality(t *testing.T) {
 	l := todo.List{}
 	todoName := "test mark as complete functionality"
@@ -33,7 +32,6 @@ func TestTodoListFunctionality(t *testing.T) {
 	}
 }
 
-// TestSaveGetTodoList tests the saving and retrieving of todo lists.
 func TestSaveGetTodoList(t *testing.T) {
 	l1 := todo.List{}
 	l2 := todo.List{}

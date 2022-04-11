@@ -15,6 +15,7 @@ type todo struct {
 	CompletedAt time.Time
 }
 
+// List represents a slice of todo type items.
 type List []todo
 
 // Add creates a new todo item and appends it to the list.
