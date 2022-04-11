@@ -22,7 +22,7 @@ func main() {
 
 		flag.PrintDefaults()
 	}
-	
+
 	flag.Parse()
 
 	l := &todo.List{}
@@ -34,11 +34,7 @@ func main() {
 
 	switch {
 	case *list:
-		for _, todo := range *l {
-			if !todo.Done {
-				fmt.Println(todo.Task)
-			}
-		}
+		fmt.Print(l)
 	case *done > 0:
 		if err := l.Complete(*done); err != nil {
 			fmt.Fprintln(os.Stderr, err)

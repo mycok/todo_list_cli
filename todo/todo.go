@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// Perform a fmt.Stringer interface satisfaction check.
+var _ fmt.Stringer = (*List)(nil)
+
 type todo struct {
 	Task        string
 	Done        bool
@@ -84,4 +87,20 @@ func (l *List) Get(filename string) error {
 	}
 
 	return json.Unmarshal(file, l)
+}
+
+// String returns a formatted todo.Task string.
+func (l *List) String() string {
+	formatted := ""
+
+	for i, t := range *l {
+		prefix := "   "
+		if t.Done {
+			prefix = "✅ "
+		}
+
+		formatted += fmt.Sprintf("%s%d: %s\n", prefix, i+1, t.Task)
+	}
+
+	return formatted
 }
