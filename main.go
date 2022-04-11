@@ -14,6 +14,15 @@ func main() {
 	task := flag.String("task", "", "Todo item to be added to the todo list")
 	list := flag.Bool("list", false, "List all available todo items")
 	done := flag.Int("done", 0, "Mark the todo list item as complete")
+
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "%s tool. Developed by mycok\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "Copyright @2022\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage information:\n")
+
+		flag.PrintDefaults()
+	}
+	
 	flag.Parse()
 
 	l := &todo.List{}

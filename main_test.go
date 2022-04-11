@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	binName  = "todo"
+	binName  = "todo_cli"
 	fileName = ".todo.json"
 )
 
