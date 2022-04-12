@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
-	"io"
+	"time"
 )
 
 var (
@@ -46,8 +47,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestTodoCLI(t *testing.T) {
+	var createdAt string
+
 	todo := "todo test number 1"
-	todo_1 := "test todo from user input"
+	todo1 := "test todo from user input"
 
 	dir, err := os.Getwd()
 	if err != nil {
@@ -72,9 +75,10 @@ func TestTodoCLI(t *testing.T) {
 		}
 
 		// Write / pipe the provided string to the standard input of the current interactive / shell session.
-		io.WriteString(cmdStdin, todo_1)
+		io.WriteString(cmdStdin, todo1)
 		cmdStdin.Close()
 
+		createdAt = time.Now().Format("02-01-2006 15:04")
 
 		if err := cmd.Run(); err != nil {
 			t.Fatal(err)
@@ -89,7 +93,7 @@ func TestTodoCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expected := fmt.Sprintf("   1: %s\n   2: %s\n", todo, todo_1)
+		expected := fmt.Sprintf("   1: %s\n   2: %s\n", todo, todo1)
 		if expected != string(out) {
 			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
 		}
@@ -110,7 +114,21 @@ func TestTodoCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expected := fmt.Sprintf("   1: %s\n", todo_1)
+		expected := fmt.Sprintf("   1: %s\n", todo1)
+		if expected != string(out) {
+			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
+		}
+	})
+
+	t.Run("List todos with details", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-list", "-detail")
+		// Access output from both stdOut and stdErr of the current interactive / shell session.
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		expected := fmt.Sprintf("   1: %s - created %s\n", todo1, createdAt)
 		if expected != string(out) {
 			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
 		}

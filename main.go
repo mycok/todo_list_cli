@@ -1,11 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"os"
-	"bufio"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/myok/todo_list_cli/todo"
@@ -16,6 +16,7 @@ var todoFileName = ".todo.json"
 func main() {
 	add := flag.Bool("add", false, "Add new todo item to the todo list")
 	list := flag.Bool("list", false, "List all available todo items")
+	detail := flag.Bool("detail", false, "List all available todo items showing more details like date & time")
 	done := flag.Int("done", 0, "Mark todo list item as complete")
 	del := flag.Int("del", 0, "Delete todo list item from the list")
 
@@ -43,7 +44,11 @@ func main() {
 
 	switch {
 	case *list:
-		fmt.Print(l)
+		if *detail {
+			fmt.Print(l.ShowDetails())
+		} else {
+			fmt.Print(l)
+		}
 	case *done > 0:
 		if err := l.Complete(*done); err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -92,7 +97,7 @@ func main() {
 	}
 }
 
-func readTask(r io.Reader, args... string) (string, error) {
+func readTask(r io.Reader, args ...string) (string, error) {
 	if len(args) > 0 {
 		return strings.Join(args, " "), nil
 	}

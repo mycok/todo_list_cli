@@ -89,12 +89,44 @@ func (l *List) Get(filename string) error {
 	return json.Unmarshal(file, l)
 }
 
+// ShowDetails returns a formatted todo.Task string.
+func (l *List) ShowDetails() string {
+	formatted := ""
+	dateFormat := "02-01-2006 15:04"
+
+	for i, t := range *l {
+		prefix := "   "
+
+		if t.Done {
+			prefix = "✅ "
+			formatted += fmt.Sprintf(
+				"%s%d: %s - created %s - completed  %s\n",
+				prefix,
+				i+1,
+				t.Task,
+				t.CreatedAt.Format(dateFormat),
+				t.CompletedAt.Format(dateFormat),
+			)
+		} else {
+			formatted += fmt.Sprintf(
+				"%s%d: %s - created %s\n",
+				prefix, i+1,
+				t.Task,
+				t.CreatedAt.Format(dateFormat),
+			)
+		}
+	}
+
+	return formatted
+}
+
 // String returns a formatted todo.Task string.
 func (l *List) String() string {
 	formatted := ""
 
 	for i, t := range *l {
 		prefix := "   "
+
 		if t.Done {
 			prefix = "✅ "
 		}
