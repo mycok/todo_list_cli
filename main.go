@@ -8,7 +8,7 @@ import (
 	"github.com/myok/todo_list_cli/todo"
 )
 
-const todoFileName = ".todo.json"
+var todoFileName = ".todo.json"
 
 func main() {
 	task := flag.String("task", "", "Todo item to be added to the todo list")
@@ -25,7 +25,12 @@ func main() {
 
 	flag.Parse()
 
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
+
 	l := &todo.List{}
+	
 	if err := l.Get(todoFileName); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
