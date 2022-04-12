@@ -16,7 +16,8 @@ var todoFileName = ".todo.json"
 func main() {
 	add := flag.Bool("add", false, "Add new todo item to the todo list")
 	list := flag.Bool("list", false, "List all available todo items")
-	done := flag.Int("done", 0, "Mark the todo list item as complete")
+	done := flag.Int("done", 0, "Mark todo list item as complete")
+	del := flag.Int("del", 0, "Delete todo list item from the list")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "%s tool. Developed by mycok\n", os.Args[0])
@@ -66,6 +67,18 @@ func main() {
 		}
 
 		l.Add(t)
+
+		if err := l.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			os.Exit(1)
+		}
+	case *del > 0:
+		if err := l.Delete(*del); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			os.Exit(1)
+		}
 
 		if err := l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)

@@ -94,4 +94,26 @@ func TestTodoCLI(t *testing.T) {
 			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
 		}
 	})
+
+	t.Run("del todo", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-del", "1")
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("List todos", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-list")
+		// Access output from both stdOut and stdErr of the current interactive / shell session.
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		expected := fmt.Sprintf("   1: %s\n", todo_1)
+		if expected != string(out) {
+			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
+		}
+	})
+
 }
