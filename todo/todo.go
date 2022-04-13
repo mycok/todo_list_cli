@@ -159,7 +159,6 @@ func (l *List) list(completed bool) string {
 	return formatted
 }
 
-
 // String returns a formatted todo.Task string.
 func (l *List) String() string {
 	formatted := ""

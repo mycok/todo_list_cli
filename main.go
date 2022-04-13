@@ -24,9 +24,17 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "%s tool. Developed by mycok\n", os.Args[0])
 		fmt.Fprintf(flag.CommandLine.Output(), "Copyright @2022\n")
+		fmt.Println()
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage information:\n")
 
 		flag.PrintDefaults()
+
+		fmt.Println()
+		fmt.Println("Examples:")
+
+		fmt.Println("-add go shopping today [Add a single item]")
+		fmt.Println("-add [Add multiple items using the input shell]")
+
 	}
 
 	flag.Parse()
@@ -61,14 +69,16 @@ func main() {
 	case *add:
 		// If any args (excluding flags) are provided, they will be used as the name
 		// of the new todo item. else we will read from user input.
-		t, err := readTask(os.Stdin, flag.Args()...)
+		tasks, err := readTasks(os.Stdin, flag.Args()...)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 
 			os.Exit(1)
 		}
 
-		l.Add(t)
+		for _, t := range tasks {
+			l.Add(t)
+		}
 
 		if err := l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -94,22 +104,30 @@ func main() {
 	}
 }
 
-func readTask(r io.Reader, args ...string) (string, error) {
+func readTasks(r io.Reader, args ...string) ([]string, error) {
+	todos := []string{}
+
 	if len(args) > 0 {
-		return strings.Join(args, " "), nil
+		todos = append(todos, strings.Join(args, " "))
+		return todos, nil
 	}
 
 	// Only open an interactive shell session if no args have been provided.
 	s := bufio.NewScanner(r)
 	// Blocking call.
-	s.Scan()
+	for {
+		s.Scan()
+
+		if len(s.Text()) > 0 {
+			todos = append(todos, s.Text())
+		} else {
+			break
+		}
+	}
+
 	if err := s.Err(); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if len(s.Text()) == 0 {
-		return "", fmt.Errorf("Task cannot be blank")
-	}
-
-	return s.Text(), nil
+	return todos, nil
 }
