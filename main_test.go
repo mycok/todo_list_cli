@@ -121,7 +121,7 @@ func TestTodoCLI(t *testing.T) {
 	})
 
 	t.Run("List todos with details", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, "-list", "-detail")
+		cmd := exec.Command(cmdPath, "-list", "-details")
 		// Access output from both stdOut and stdErr of the current interactive / shell session.
 		out, err := cmd.CombinedOutput()
 		if err != nil {

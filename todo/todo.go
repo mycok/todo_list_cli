@@ -89,9 +89,20 @@ func (l *List) Get(filename string) error {
 	return json.Unmarshal(file, l)
 }
 
-// ShowDetails returns a formatted todo.Task string.
-func (l *List) ShowDetails() string {
+// ListItems lists all todo list items.
+func (l *List) ListItems(details, completed *bool) {
+	if *details {
+		fmt.Print(l.listItemDetails(*completed))
+	} else {
+		fmt.Print(l.list(*completed))
+	}
+}
+
+func (l *List) listItemDetails(completed bool) string {
+	var formattedStr string
+
 	formatted := ""
+	allFormatted := ""
 	dateFormat := "02-01-2006 15:04"
 
 	for i, t := range *l {
@@ -99,7 +110,7 @@ func (l *List) ShowDetails() string {
 
 		if t.Done {
 			prefix = "✅ "
-			formatted += fmt.Sprintf(
+			formattedStr = fmt.Sprintf(
 				"%s%d: %s - created %s - completed  %s\n",
 				prefix,
 				i+1,
@@ -107,18 +118,47 @@ func (l *List) ShowDetails() string {
 				t.CreatedAt.Format(dateFormat),
 				t.CompletedAt.Format(dateFormat),
 			)
+
+			allFormatted += formattedStr
 		} else {
-			formatted += fmt.Sprintf(
+			formattedStr = fmt.Sprintf(
 				"%s%d: %s - created %s\n",
-				prefix, i+1,
+				prefix,
+				i+1,
 				t.Task,
 				t.CreatedAt.Format(dateFormat),
 			)
+
+			allFormatted += formattedStr
+			formatted += formattedStr
+		}
+	}
+
+	if completed {
+		return allFormatted
+	}
+
+	return formatted
+}
+
+func (l *List) list(completed bool) string {
+	if completed {
+		return l.String()
+	}
+
+	formatted := ""
+
+	for i, t := range *l {
+		prefix := "   "
+
+		if !t.Done {
+			formatted += fmt.Sprintf("%s%d: %s\n", prefix, i+1, t.Task)
 		}
 	}
 
 	return formatted
 }
+
 
 // String returns a formatted todo.Task string.
 func (l *List) String() string {
