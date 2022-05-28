@@ -109,6 +109,7 @@ func readTasks(r io.Reader, args ...string) ([]string, error) {
 
 	if len(args) > 0 {
 		todos = append(todos, strings.Join(args, " "))
+		
 		return todos, nil
 	}
 
