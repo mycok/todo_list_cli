@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/myok/todo_list_cli/todo"
+	"github.com/mycok/todo_list_cli/todo"
 )
 
 func TestTodoListFunctionality(t *testing.T) {

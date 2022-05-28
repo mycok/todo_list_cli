@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/myok/todo_list_cli/todo"
+	"github.com/mycok/todo_list_cli/todo"
 )
 
 var todoFileName = ".todo.json"
@@ -109,7 +109,7 @@ func readTasks(r io.Reader, args ...string) ([]string, error) {
 
 	if len(args) > 0 {
 		todos = append(todos, strings.Join(args, " "))
-		
+
 		return todos, nil
 	}
 
