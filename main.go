@@ -45,7 +45,7 @@ func main() {
 
 	l := &todo.List{}
 
-	if err := l.Get(todoFileName); err != nil {
+	if err := l.Load(todoFileName); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
 		os.Exit(1)

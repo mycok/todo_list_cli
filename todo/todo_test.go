@@ -32,7 +32,7 @@ func TestTodoListFunctionality(t *testing.T) {
 	}
 }
 
-func TestSaveGetTodoList(t *testing.T) {
+func TestSaveLoadTodoList(t *testing.T) {
 	l1 := todo.List{}
 	l2 := todo.List{}
 
@@ -54,7 +54,7 @@ func TestSaveGetTodoList(t *testing.T) {
 		t.Fatalf("Error saving todo list to file: %s", err)
 	}
 
-	if err := l2.Get(tf.Name()); err != nil {
+	if err := l2.Load(tf.Name()); err != nil {
 		t.Fatalf("Error retrieving todo list from file: %s", err)
 	}
 

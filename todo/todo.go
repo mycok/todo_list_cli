@@ -71,9 +71,9 @@ func (l *List) Save(filename string) error {
 	return os.WriteFile(filename, js, 0644)
 }
 
-// Get opens the provided file name, decodes the JSON data and parses it into a todo list type.
-func (l *List) Get(filename string) error {
-	file, err := os.ReadFile(filename)
+// Load opens the provided file name, decodes the JSON data and parses it into a todo list type.
+func (l *List) Load(filename string) error {
+	fileData, err := os.ReadFile(filename)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -82,11 +82,11 @@ func (l *List) Get(filename string) error {
 		return err
 	}
 
-	if len(file) == 0 {
+	if len(fileData) == 0 {
 		return nil
 	}
 
-	return json.Unmarshal(file, l)
+	return json.Unmarshal(fileData, l)
 }
 
 // ListItems lists all todo list items.
