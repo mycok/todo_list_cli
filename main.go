@@ -100,6 +100,9 @@ func main() {
 
 	default:
 		fmt.Fprintln(os.Stderr, "Invalid option")
+		// Show usage information
+		flag.Usage()
+		
 		os.Exit(1)
 	}
 }
@@ -122,6 +125,7 @@ func readTasks(r io.Reader, args ...string) ([]string, error) {
 		if len(s.Text()) > 0 {
 			todos = append(todos, s.Text())
 		} else {
+			// Case of an empty string.
 			break
 		}
 	}

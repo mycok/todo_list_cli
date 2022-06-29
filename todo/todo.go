@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/mycok/todo_list_cli/colors"
 )
 
 // Perform a fmt.Stringer interface satisfaction check.
@@ -99,10 +101,8 @@ func (l *List) ListItems(details, completed *bool) {
 }
 
 func (l *List) listItemDetails(completed bool) string {
-	var formattedStr string
-
-	formatted := ""
-	allFormatted := ""
+	withoutCompleted := ""
+	withCompleted := ""
 	dateFormat := "02-01-2006 15:04"
 
 	for i, t := range *l {
@@ -110,18 +110,22 @@ func (l *List) listItemDetails(completed bool) string {
 
 		if t.Done {
 			prefix = "✅ "
-			formattedStr = fmt.Sprintf(
-				"%s%d: %s - created %s - completed  %s\n",
+			taskColor := colors.Green
+			taskColorReset := colors.Reset
+
+			withCompleted += fmt.Sprintf(
+				"%s%d: %s%s - created %s - completed  %s%s\n",
 				prefix,
 				i+1,
+				taskColor,
 				t.Task,
 				t.CreatedAt.Format(dateFormat),
 				t.CompletedAt.Format(dateFormat),
+				taskColorReset,
 			)
 
-			allFormatted += formattedStr
 		} else {
-			formattedStr = fmt.Sprintf(
+			formattedStr := fmt.Sprintf(
 				"%s%d: %s - created %s\n",
 				prefix,
 				i+1,
@@ -129,16 +133,16 @@ func (l *List) listItemDetails(completed bool) string {
 				t.CreatedAt.Format(dateFormat),
 			)
 
-			allFormatted += formattedStr
-			formatted += formattedStr
+			withCompleted += formattedStr
+			withoutCompleted += formattedStr
 		}
 	}
 
 	if completed {
-		return allFormatted
+		return withCompleted
 	}
 
-	return formatted
+	return withoutCompleted
 }
 
 func (l *List) list(completed bool) string {
@@ -164,13 +168,18 @@ func (l *List) String() string {
 	formatted := ""
 
 	for i, t := range *l {
+		var taskColor colors.Color
+		var taskColorReset colors.Color
+
 		prefix := "   "
 
 		if t.Done {
 			prefix = "✅ "
+			taskColor = colors.Green
+			taskColorReset = colors.Reset
 		}
 
-		formatted += fmt.Sprintf("%s%d: %s\n", prefix, i+1, t.Task)
+		formatted += fmt.Sprintf("%s%d: %s%s%s\n", prefix, i+1, taskColor, t.Task, taskColorReset)
 	}
 
 	return formatted
