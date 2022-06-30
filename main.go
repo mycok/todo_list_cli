@@ -43,68 +43,68 @@ func main() {
 		todoFileName = os.Getenv("TODO_FILENAME")
 	}
 
-	l := &todo.List{}
-
-	if err := l.Load(todoFileName); err != nil {
+	if err := run(todoFileName, *del, *complete, *add, *list, *details, *completed); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
 		os.Exit(1)
 	}
+}
+
+func run(fName string, del, complete int, add, list, details, completed bool) error {
+	var err error
+
+	l := &todo.List{}
+
+	if err = l.Load(fName); err != nil {
+		return err
+	}
 
 	switch {
-	case *list:
+	case list:
 		l.ListItems(os.Stdout, details, completed)
-	case *complete > 0:
-		if err := l.Complete(*complete); err != nil {
-			fmt.Fprintln(os.Stderr, err)
 
-			os.Exit(1)
+	case complete > 0:
+		if err = l.Complete(complete); err != nil {
+			return err
 		}
 
-		if err := l.Save(todoFileName); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-
-			os.Exit(1)
+		if err = l.Save(fName); err != nil {
+			return err
 		}
-	case *add:
+
+	case add:
 		// If any args (excluding flags) are provided, they will be used as the name
-		// of the new todo item. else we will read from user input.
+		// of the new todo item. else we will read from standard input.
 		tasks, err := readTasksInput(os.Stdin, flag.Args()...)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-
-			os.Exit(1)
+			return err
 		}
 
 		for _, t := range tasks {
 			l.Add(t)
 		}
 
-		if err := l.Save(todoFileName); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-
-			os.Exit(1)
-		}
-	case *del > 0:
-		if err := l.Delete(*del); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-
-			os.Exit(1)
+		if err = l.Save(fName); err != nil {
+			return err
 		}
 
-		if err := l.Save(todoFileName); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+	case del > 0:
+		if err = l.Delete(del); err != nil {
+			return err
+		}
 
-			os.Exit(1)
+		if err = l.Save(fName); err != nil {
+			return err
 		}
 
 	default:
 		fmt.Fprintln(os.Stderr, "Invalid option")
+		fmt.Fprintln(os.Stderr)
 		// Show usage information
 		flag.Usage()
-
-		os.Exit(1)
 	}
+
+	return nil
 }
 
 func readTasksInput(r io.Reader, args ...string) ([]string, error) {

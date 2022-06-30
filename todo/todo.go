@@ -74,18 +74,18 @@ func (l *List) Delete(i int) error {
 
 // Save encodes the list as JSON and persists it to file using the provided file name.
 func (l *List) Save(filename string) error {
-	js, err := json.Marshal(l)
+	data, err := json.Marshal(l)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filename, js, 0644)
+	return os.WriteFile(filename, data, 0644)
 }
 
 // Load opens the provided file name, decodes the JSON data and parses
 // it into a todo list type.
 func (l *List) Load(filename string) error {
-	fileData, err := os.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -94,18 +94,18 @@ func (l *List) Load(filename string) error {
 		return err
 	}
 
-	if len(fileData) == 0 {
+	if len(data) == 0 {
 		return nil
 	}
 
-	return json.Unmarshal(fileData, l)
+	return json.Unmarshal(data, l)
 }
 
 // ListItems lists all todo list items.
-func (l *List) ListItems(w io.Writer, details, completed *bool) {
+func (l *List) ListItems(w io.Writer, details, completed bool) {
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	if *details {
+	if details {
 		// Display the task headers using the same format as fmtWithDetail
 		// variable replacing only the integer ID with a string ID title.
 		fmt.Fprintf(
@@ -114,7 +114,7 @@ func (l *List) ListItems(w io.Writer, details, completed *bool) {
 		)
 
 		// Display the list of items separated by new lines
-		fmt.Fprintln(tw, l.listItemDetails(*completed))
+		fmt.Fprintln(tw, l.listItemDetails(completed))
 	} else {
 		// Display the task headers using the same format as fmtWithoutDetail
 		// variable replacing only the integer ID with a string ID title.
@@ -123,7 +123,7 @@ func (l *List) ListItems(w io.Writer, details, completed *bool) {
 			prefix, colors.Yellow, "ID", "TASK", colors.Reset,
 		)
 
-		fmt.Fprintln(tw, l.list(*completed))
+		fmt.Fprintln(tw, l.list(completed))
 	}
 
 	tw.Flush()
