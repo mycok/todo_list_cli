@@ -53,7 +53,7 @@ func main() {
 
 	switch {
 	case *list:
-		l.ListItems(details, completed)
+		l.ListItems(os.Stdout, details, completed)
 	case *complete > 0:
 		if err := l.Complete(*complete); err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -102,7 +102,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Invalid option")
 		// Show usage information
 		flag.Usage()
-		
+
 		os.Exit(1)
 	}
 }

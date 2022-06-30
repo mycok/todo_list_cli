@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"text/tabwriter"
 	"time"
 
 	"github.com/mycok/todo_list_cli/colors"
@@ -12,6 +14,13 @@ import (
 
 // Perform a fmt.Stringer interface satisfaction check.
 var _ fmt.Stringer = (*List)(nil)
+
+var (
+	fmtWithDetail    = "%s%s%d: \t%s\t%s\t%s\t%s\n"
+	fmtWithoutDetail = "%s%s%d: \t%s\t%s\n"
+)
+
+const prefix = " " // prefix should be a singe space string.
 
 type todo struct {
 	Task        string
@@ -73,7 +82,8 @@ func (l *List) Save(filename string) error {
 	return os.WriteFile(filename, js, 0644)
 }
 
-// Load opens the provided file name, decodes the JSON data and parses it into a todo list type.
+// Load opens the provided file name, decodes the JSON data and parses
+// it into a todo list type.
 func (l *List) Load(filename string) error {
 	fileData, err := os.ReadFile(filename)
 	if err != nil {
@@ -92,12 +102,31 @@ func (l *List) Load(filename string) error {
 }
 
 // ListItems lists all todo list items.
-func (l *List) ListItems(details, completed *bool) {
+func (l *List) ListItems(w io.Writer, details, completed *bool) {
+	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
+
 	if *details {
-		fmt.Print(l.listItemDetails(*completed))
+		// Display the task headers using the same format as fmtWithDetail
+		// variable replacing only the integer ID with a string ID title.
+		fmt.Fprintf(
+			tw, "%s%s%s \t%s\t%s\t%s\t%s\n",
+			prefix, colors.Yellow, "ID", "TASK", "CREATED", "COMPLETED", colors.Reset,
+		)
+
+		// Display the list of items separated by new lines
+		fmt.Fprintln(tw, l.listItemDetails(*completed))
 	} else {
-		fmt.Print(l.list(*completed))
+		// Display the task headers using the same format as fmtWithoutDetail
+		// variable replacing only the integer ID with a string ID title.
+		fmt.Fprintf(
+			tw, "%s%s%s \t%s\t%s\n",
+			prefix, colors.Yellow, "ID", "TASK", colors.Reset,
+		)
+
+		fmt.Fprintln(tw, l.list(*completed))
 	}
+
+	tw.Flush()
 }
 
 func (l *List) listItemDetails(completed bool) string {
@@ -106,31 +135,28 @@ func (l *List) listItemDetails(completed bool) string {
 	dateFormat := "02-01-2006 15:04"
 
 	for i, t := range *l {
-		prefix := "   "
-
 		if t.Done {
-			prefix = "✅ "
-			taskColor := colors.Green
-			taskColorReset := colors.Reset
-
 			withCompleted += fmt.Sprintf(
-				"%s%d: %s%s - created %s - completed  %s%s\n",
+				fmtWithDetail,
 				prefix,
+				colors.Green,
 				i+1,
-				taskColor,
 				t.Task,
 				t.CreatedAt.Format(dateFormat),
 				t.CompletedAt.Format(dateFormat),
-				taskColorReset,
+				colors.Reset,
 			)
 
 		} else {
 			formattedStr := fmt.Sprintf(
-				"%s%d: %s - created %s\n",
+				fmtWithDetail,
 				prefix,
+				colors.White,
 				i+1,
 				t.Task,
 				t.CreatedAt.Format(dateFormat),
+				"",
+				colors.Reset,
 			)
 
 			withCompleted += formattedStr
@@ -146,40 +172,52 @@ func (l *List) listItemDetails(completed bool) string {
 }
 
 func (l *List) list(completed bool) string {
+	// Return both completed and pending tasks.
 	if completed {
 		return l.String()
 	}
 
 	formatted := ""
 
+	// return only pending tasks.
 	for i, t := range *l {
-		prefix := "   "
-
 		if !t.Done {
-			formatted += fmt.Sprintf("%s%d: %s\n", prefix, i+1, t.Task)
+			formatted += fmt.Sprintf(
+				fmtWithoutDetail,
+				prefix,
+				colors.White,
+				i+1,
+				t.Task,
+				colors.Reset,
+			)
 		}
 	}
 
 	return formatted
 }
 
-// String returns a formatted todo.Task string.
+// String returns a formatted todo.Task string. it returns both pending and
+// completed tasks.
 func (l *List) String() string {
+	var taskColor colors.Color
+
 	formatted := ""
 
 	for i, t := range *l {
-		var taskColor colors.Color
-		var taskColorReset colors.Color
-
-		prefix := "   "
-
 		if t.Done {
-			prefix = "✅ "
 			taskColor = colors.Green
-			taskColorReset = colors.Reset
+		} else {
+			taskColor = colors.White
 		}
 
-		formatted += fmt.Sprintf("%s%d: %s%s%s\n", prefix, i+1, taskColor, t.Task, taskColorReset)
+		formatted += fmt.Sprintf(
+			fmtWithoutDetail,
+			prefix,
+			taskColor,
+			i+1,
+			t.Task,
+			colors.Reset,
+		)
 	}
 
 	return formatted
