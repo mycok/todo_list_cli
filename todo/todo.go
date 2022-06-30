@@ -20,7 +20,7 @@ var (
 	fmtWithoutDetail = "%s%s%d: \t%s\t%s\n"
 )
 
-const prefix = " " // prefix should be a singe space string.
+const prefix string = " " // prefix should be a singe space string.
 
 type todo struct {
 	Task        string

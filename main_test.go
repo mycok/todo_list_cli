@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -8,7 +9,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"text/tabwriter"
 	"time"
+
+	"github.com/mycok/todo_list_cli/colors"
 )
 
 var (
@@ -36,14 +40,14 @@ func TestMain(m *testing.M) {
 
 	fmt.Println("....Running tests....")
 
-	result := m.Run()
+	code := m.Run()
 
 	fmt.Println("....Cleaning up....")
 
 	os.Remove(binName)
 	os.Remove(fileName)
 
-	os.Exit(result)
+	os.Exit(code)
 }
 
 func TestTodoCLI(t *testing.T) {
@@ -57,6 +61,7 @@ func TestTodoCLI(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Get the path for the compiled app binary.
 	cmdPath := filepath.Join(dir, binName)
 
 	t.Run("Add new todo from args", func(t *testing.T) {
@@ -68,13 +73,15 @@ func TestTodoCLI(t *testing.T) {
 
 	t.Run("Add new todo from user input", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-add")
-		// Access to the standard input of the current interactive / shell session through a pipe.
+		// Access to the standard input of the current interactive / shell session
+		// through a pipe.
 		cmdStdin, err := cmd.StdinPipe()
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		// Write / pipe the provided string to the standard input of the current interactive / shell session.
+		// Write / pipe the provided string to the standard input of the current
+		// interactive / shell session.
 		io.WriteString(cmdStdin, todo1)
 		cmdStdin.Close()
 
@@ -87,19 +94,34 @@ func TestTodoCLI(t *testing.T) {
 
 	t.Run("List todos", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-list")
-		// Access output from both stdOut and stdErr of the current interactive / shell session.
+		// Access output from both stdOut and stdErr of the current
+		// interactive / shell session.
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		expected := fmt.Sprintf("   1: %s\n   2: %s\n", todo, todo1)
-		if expected != string(out) {
-			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
+		var outBuf bytes.Buffer
+
+		tw := tabwriter.NewWriter(&outBuf, 0, 0, 1, ' ', tabwriter.Debug)
+
+		prefix := " "
+
+		fmt.Fprintf(tw, "%s%s%s \t%s\t%s\n", prefix, colors.Yellow, "ID", "TASK", colors.Reset)
+		fmt.Fprintf(tw, "%s%s%d: \t%s\t%s\n", prefix, colors.White, 1, todo, colors.Reset)
+		fmt.Fprintf(tw, "%s%s%d: \t%s\t%s\n", prefix, colors.White, 2, todo1, colors.Reset)
+		fmt.Fprintln(tw)
+
+		tw.Flush()
+
+		expectedTodoList := outBuf.String()
+
+		if expectedTodoList != string(out) {
+			t.Errorf("Expected: %q, Got: %q instead \n", expectedTodoList, string(out))
 		}
 	})
 
-	t.Run("del todo", func(t *testing.T) {
+	t.Run("delete todo", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-del", "1")
 		if err := cmd.Run(); err != nil {
 			t.Fatal(err)
@@ -114,9 +136,22 @@ func TestTodoCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expected := fmt.Sprintf("   1: %s\n", todo1)
-		if expected != string(out) {
-			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
+		var outBuf bytes.Buffer
+
+		tw := tabwriter.NewWriter(&outBuf, 0, 0, 1, ' ', tabwriter.Debug)
+
+		prefix := " "
+
+		fmt.Fprintf(tw, "%s%s%s \t%s\t%s\n", prefix, colors.Yellow, "ID", "TASK", colors.Reset)
+		fmt.Fprintf(tw, "%s%s%d: \t%s\t%s\n", prefix, colors.White, 1, todo1, colors.Reset)
+		fmt.Fprintln(tw)
+
+		tw.Flush()
+
+		expectedTodoList := outBuf.String()
+
+		if expectedTodoList != string(out) {
+			t.Errorf("Expected: %q, Got: %q instead \n", expectedTodoList, string(out))
 		}
 	})
 
@@ -128,9 +163,30 @@ func TestTodoCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expected := fmt.Sprintf("   1: %s - created %s\n", todo1, createdAt)
-		if expected != string(out) {
-			t.Errorf("Expected: %q, Got: %q instead \n", expected, string(out))
+		var outBuf bytes.Buffer
+
+		tw := tabwriter.NewWriter(&outBuf, 0, 0, 1, ' ', tabwriter.Debug)
+
+		prefix := " "
+
+		fmt.Fprintf(
+			tw, "%s%s%s \t%s\t%s\t%s\t%s\n",
+			prefix, colors.Yellow, "ID", "TASK", "CREATED", "COMPLETED", colors.Reset,
+		)
+
+		fmt.Fprintf(
+			tw, "%s%s%d: \t%s\t%s\t%s\t%s\n",
+			prefix, colors.White, 1, todo1, createdAt, "", colors.Reset,
+		)
+
+		fmt.Fprintln(tw)
+
+		tw.Flush()
+
+		expectedTodoList := outBuf.String()
+
+		if expectedTodoList != string(out) {
+			t.Errorf("Expected: %q, Got: %q instead \n", expectedTodoList, string(out))
 		}
 	})
 

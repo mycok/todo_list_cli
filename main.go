@@ -69,7 +69,7 @@ func main() {
 	case *add:
 		// If any args (excluding flags) are provided, they will be used as the name
 		// of the new todo item. else we will read from user input.
-		tasks, err := readTasks(os.Stdin, flag.Args()...)
+		tasks, err := readTasksInput(os.Stdin, flag.Args()...)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 
@@ -107,7 +107,7 @@ func main() {
 	}
 }
 
-func readTasks(r io.Reader, args ...string) ([]string, error) {
+func readTasksInput(r io.Reader, args ...string) ([]string, error) {
 	todos := []string{}
 
 	if len(args) > 0 {
