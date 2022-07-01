@@ -22,7 +22,8 @@ func main() {
 	del := flag.Int("del", 0, "Delete todo list item from the list")
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "%s tool. Developed by mycok\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "todoCLI tool: Developed by mycok\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "<github.com/mycok>: Copyright @2022\n")
 		fmt.Fprintf(flag.CommandLine.Output(), "Copyright @2022\n")
 		fmt.Println()
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage information:\n")
@@ -32,8 +33,8 @@ func main() {
 		fmt.Println()
 		fmt.Println("Examples:")
 
-		fmt.Println("-add go shopping today [Add a single item]")
-		fmt.Println("-add [Add multiple items using the input shell]")
+		fmt.Println("-add go shopping today [Adds a single item]")
+		fmt.Println("-add [Adds multiple items using the input shell]")
 
 	}
 
@@ -98,8 +99,8 @@ func run(fName string, del, complete int, add, list, details, completed bool) er
 		}
 
 	default:
-		fmt.Fprintln(os.Stderr, "Invalid option")
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stdout, "Invalid option")
+		fmt.Fprintln(os.Stdout)
 		// Show usage information
 		flag.Usage()
 	}

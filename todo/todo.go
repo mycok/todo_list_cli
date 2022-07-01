@@ -103,36 +103,57 @@ func (l *List) Load(filename string) error {
 
 // ListItems lists all todo list items.
 func (l *List) ListItems(w io.Writer, details, completed bool) {
+	msg := fmt.Sprintf(
+		"%sno tasks available!. use %s-add%s %sto add tasks%s",
+		colors.Yellow, colors.Cyan, colors.White, colors.Yellow, colors.White)
+
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	if details {
-		// Display the task headers using the same format as fmtWithDetail
-		// variable replacing only the integer ID with a string ID title.
-		fmt.Fprintf(
-			tw, "%s%s%s \t%s\t%s\t%s\t%s\n",
-			prefix, colors.Yellow, "ID", "TASK", "CREATED", "COMPLETED", colors.Reset,
-		)
+	switch {
+	case details:
+		if l.listItemDetails(completed) == "" {
+			fmt.Fprintln(w, msg)
+		} else {
+			// Display the task headers using the same format as fmtWithDetail
+			// variable replacing only the integer ID with a string ID title.
+			fmt.Fprintf(
+				tw, "%s%s%s \t%s\t%s\t%s\t%s\n",
+				prefix, colors.Yellow, "ID", "TASK", "CREATED", "COMPLETED", colors.Reset,
+			)
 
-		// Display the list of items separated by new lines
-		fmt.Fprintln(tw, l.listItemDetails(completed))
-	} else {
-		// Display the task headers using the same format as fmtWithoutDetail
-		// variable replacing only the integer ID with a string ID title.
-		fmt.Fprintf(
-			tw, "%s%s%s \t%s\t%s\n",
-			prefix, colors.Yellow, "ID", "TASK", colors.Reset,
-		)
+			// Display the list of items separated by new lines
+			fmt.Fprintln(tw, l.listItemDetails(completed))
 
-		fmt.Fprintln(tw, l.list(completed))
+			tw.Flush()
+		}
+
+	default:
+		if l.list(completed) == "" {
+			fmt.Fprintln(w, msg)
+		} else {
+			// Display the task headers using the same format as fmtWithoutDetail
+			// variable replacing only the integer ID with a string ID title.
+			fmt.Fprintf(
+				tw, "%s%s%s \t%s\t%s\n",
+				prefix, colors.Yellow, "ID", "TASK", colors.Reset,
+			)
+
+			fmt.Fprintln(tw, l.list(completed))
+
+			tw.Flush()
+		}
 	}
-
-	tw.Flush()
 }
 
 func (l *List) listItemDetails(completed bool) string {
 	withoutCompleted := ""
 	withCompleted := ""
 	dateFormat := "02-01-2006 15:04"
+
+	// Return an empty string in case there are no task items recorded.
+	if len(*l) == 0 {
+		return ""
+	}
 
 	for i, t := range *l {
 		if t.Done {
@@ -179,6 +200,11 @@ func (l *List) list(completed bool) string {
 
 	formatted := ""
 
+	// Return an empty string in case there are no task items recorded.
+	if len(*l) == 0 {
+		return formatted
+	}
+
 	// return only pending tasks.
 	for i, t := range *l {
 		if !t.Done {
@@ -202,6 +228,11 @@ func (l *List) String() string {
 	var taskColor colors.Color
 
 	formatted := ""
+
+	// Return an empty string in case there are no task items recorded.
+	if len(*l) == 0 {
+		return formatted
+	}
 
 	for i, t := range *l {
 		if t.Done {
