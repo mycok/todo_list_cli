@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mycok/todo_list_cli/colors"
 	"github.com/mycok/todo_list_cli/todo"
 )
 
@@ -22,16 +23,25 @@ func main() {
 	del := flag.Int("del", 0, "Delete todo list item from the list")
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "todoCLI tool: Developed by mycok\n")
-		fmt.Fprintf(flag.CommandLine.Output(), "<github.com/mycok>: Copyright @2022\n")
-		fmt.Fprintf(flag.CommandLine.Output(), "Copyright @2022\n")
+		fmt.Fprintf(
+			flag.CommandLine.Output(),
+			"%stodoCLI tool: Developed by mycok%s\n",
+			colors.Cyan, colors.Reset,
+		)
+
+		fmt.Fprintf(
+			flag.CommandLine.Output(),
+			"%s<github.com/mycok>: Copyright @2022%s\n",
+			colors.Cyan, colors.Reset,
+		)
+
 		fmt.Println()
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage information:\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "%sUsage information:%s\n", colors.Magenta, colors.Reset)
 
 		flag.PrintDefaults()
 
 		fmt.Println()
-		fmt.Println("Examples:")
+		fmt.Fprintf(flag.CommandLine.Output(), "%sExamples:%s\n", colors.Magenta, colors.Reset)
 
 		fmt.Println("-add go shopping today [Adds a single item]")
 		fmt.Println("-add [Adds multiple items using the input shell]")

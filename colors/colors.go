@@ -3,9 +3,10 @@ package colors
 type Color string
 
 const (
-	Green  Color = "\u001b[32;1m"
-	White  Color = "\u001b[37;1m"
-	Yellow Color = "\u001b[33;1m"
-	Cyan   Color = "\u001b[36;1m"
-	Reset  Color = "\u001b[0m"
+	Green   Color = "\u001b[32;1m"
+	White   Color = "\u001b[37;1m"
+	Yellow  Color = "\u001b[33;1m"
+	Cyan    Color = "\u001b[36;1m"
+	Magenta Color = "\u001b[35m"
+	Reset   Color = "\u001b[0m"
 )

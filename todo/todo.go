@@ -105,7 +105,7 @@ func (l *List) Load(filename string) error {
 func (l *List) ListItems(w io.Writer, details, completed bool) {
 	msg := fmt.Sprintf(
 		"%sno tasks available!. use %s-add%s %sto add tasks%s",
-		colors.Yellow, colors.Cyan, colors.White, colors.Yellow, colors.White)
+		colors.Yellow, colors.Cyan, colors.Reset, colors.Yellow, colors.Reset)
 
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
