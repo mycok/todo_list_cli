@@ -2,66 +2,92 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 
+	"github.com/mycok/todo_list_cli/cmds"
 	"github.com/mycok/todo_list_cli/colors"
 	"github.com/mycok/todo_list_cli/todo"
 )
 
-var todoFileName = ".todo.json"
-
 func main() {
-	add := flag.Bool("add", false, "Add new todo item to the todo list")
-	list := flag.Bool("list", false, "List all available todo items")
-	details := flag.Bool("details", false, "List all available todo items showing more details like date & time")
-	completed := flag.Bool("completed", false, "List all available todo items including the completed")
-	complete := flag.Int("complete", 0, "Mark todo list item as complete")
-	del := flag.Int("del", 0, "Delete todo list item from the list")
+	fs := flag.NewFlagSet("todo_list_cli", flag.ExitOnError)
+	fs.SetOutput(os.Stdout)
 
-	flag.Usage = func() {
+	fs.Usage = func() {
 		fmt.Fprintf(
-			flag.CommandLine.Output(),
+			fs.Output(),
 			"%stodoCLI tool: Developed by mycok%s\n",
 			colors.Cyan, colors.Reset,
 		)
 
 		fmt.Fprintf(
-			flag.CommandLine.Output(),
+			fs.Output(),
 			"%s<github.com/mycok>: Copyright @2022%s\n",
 			colors.Cyan, colors.Reset,
 		)
 
 		fmt.Println()
-		fmt.Fprintf(flag.CommandLine.Output(), "%sUsage information:%s\n", colors.Magenta, colors.Reset)
+		fmt.Fprintf(fs.Output(), "%sUsage information:%s\n", colors.Magenta, colors.Reset)
 
-		flag.PrintDefaults()
+		fs.PrintDefaults()
 
 		fmt.Println()
-		fmt.Fprintf(flag.CommandLine.Output(), "%sExamples:%s\n", colors.Magenta, colors.Reset)
+		fmt.Fprintf(fs.Output(), "%sExamples:%s\n", colors.Magenta, colors.Reset)
 
 		fmt.Println("-add go shopping today [Adds a single item]")
 		fmt.Println("-add [Adds multiple items using the input shell]")
 
 	}
 
-	flag.Parse()
+	file := fs.String("file", ".todo.json", "File name to store todo list")
+	details := fs.Bool("details", false, "List all available todo items showing more details like date & time")
+	completed := fs.Bool("completed", false, "List all available todo items including the completed")
+
+	// Commands
+	add := fs.Bool("add", false, "Add new todo item to the todo list")
+	list := fs.Bool("list", false, "List all available todo items")
+	complete := fs.Int("complete", 0, "Mark todo list item as complete")
+	del := fs.Int("del", 0, "Delete todo list item from the list")
+
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+
+		os.Exit(1)
+	}
+
+	// Add all provided flags to the cmdFlagArgs map.
+	for i := 0; i < fs.NFlag(); i++ {
+		fs.Visit(func(f *flag.Flag) {
+			err := cmds.AddFlag(f.Name, f.Value)
+			if err != nil {
+				if !errors.Is(err, cmds.ErrDuplicateFlag) {
+					fmt.Fprintln(os.Stderr, err)
+
+					os.Exit(1)
+				}
+			}
+		})
+	}
+
+	todoFileName := *file
 
 	if os.Getenv("TODO_FILENAME") != "" {
 		todoFileName = os.Getenv("TODO_FILENAME")
 	}
 
-	if err := run(todoFileName, *del, *complete, *add, *list, *details, *completed); err != nil {
+	if err := run(fs, todoFileName, *del, *complete, *add, *list, *details, *completed); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
 		os.Exit(1)
 	}
 }
 
-func run(fName string, del, complete int, add, list, details, completed bool) error {
+func run(fs *flag.FlagSet, fName string, del, complete int, add, list, details, completed bool) error {
 	var err error
 
 	l := &todo.List{}
@@ -86,7 +112,7 @@ func run(fName string, del, complete int, add, list, details, completed bool) er
 	case add:
 		// If any args (excluding flags) are provided, they will be used as the name
 		// of the new todo item. else we will read from standard input.
-		tasks, err := readTasksInput(os.Stdin, flag.Args()...)
+		tasks, err := readTasksInput(os.Stdin, fs.Args()...)
 		if err != nil {
 			return err
 		}
@@ -109,10 +135,10 @@ func run(fName string, del, complete int, add, list, details, completed bool) er
 		}
 
 	default:
-		fmt.Fprintln(os.Stdout, "Invalid option")
+		fmt.Fprintf(os.Stdout, "%sInvalid option!%s\n", colors.Red, colors.Reset)
 		fmt.Fprintln(os.Stdout)
 		// Show usage information
-		flag.Usage()
+		fs.Usage()
 	}
 
 	return nil
