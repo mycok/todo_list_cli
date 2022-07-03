@@ -28,6 +28,9 @@ func Run(w io.Writer) error {
 	case "complete":
 		return executeCmd(w, os.Args[1], fs.Args()...)
 
+	case "del":
+		return executeCmd(w, os.Args[1], fs.Args()...)
+
 	default:
 		fmt.Fprintf(
 			w,
@@ -119,7 +122,7 @@ func handleCmdlineFlags(w io.Writer) (*flag.FlagSet, error) {
 func executeCmd(w io.Writer, cmd string, args ...string) error {
 	c := api.Get(cmd)
 	if c == nil {
-		return nil
+		return fmt.Errorf("%w: %q", api.ErrInvalidCmd, cmd)
 	}
 
 	if err := c.Run(w, args...); err != nil {
