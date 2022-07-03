@@ -11,7 +11,7 @@ import (
 	"github.com/mycok/todo_list_cli/colors"
 )
 
-func Execute(w io.Writer) error {
+func Run(w io.Writer) error {
 	fs, err := handleCmdlineFlags(w)
 	if err != nil {
 		return err
@@ -23,6 +23,9 @@ func Execute(w io.Writer) error {
 		return executeCmd(w, os.Args[1], fs.Args()...)
 
 	case "list":
+		return executeCmd(w, os.Args[1], fs.Args()...)
+
+	case "complete":
 		return executeCmd(w, os.Args[1], fs.Args()...)
 
 	default:

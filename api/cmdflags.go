@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	// ErrInvalidFlag represents an invalid command flag error.
-	ErrInvalidFlag   = errors.New("invalid flag")
+	// ErrInvalidFlag represents a missing command flag error.
+	ErrMissingFlag = errors.New("missing flag")
 	// ErrDuplicateFlag represents a duplicate command flag error.
 	ErrDuplicateFlag = errors.New("duplicate flag")
 )

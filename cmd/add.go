@@ -17,7 +17,7 @@ var add = api.Cmd{
 	Action: func(w io.Writer, args ...string) error {
 		f := api.GetFlag("file")
 		if f == nil {
-			return api.ErrInvalidFlag
+			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "file")
 		}
 
 		return addAction(os.Stdin, os.Stdout, f.Value.String(), args...)
@@ -27,6 +27,10 @@ var add = api.Cmd{
 func addAction(r io.Reader, w io.Writer, fName string, args ...string) error {
 	// Initialize an empty List.
 	l := &todo.List{}
+
+	if err := l.Load(fName); err != nil {
+		return err
+	}
 
 	tasks, err := readTaskInput(r, args...)
 	if err != nil {
