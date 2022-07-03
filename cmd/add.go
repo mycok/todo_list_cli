@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,18 +11,16 @@ import (
 	"github.com/mycok/todo_list_cli/todo"
 )
 
-var ErrFlagNotSet = errors.New("flag not set")
-
 var add = api.Cmd{
 	Name:  "add",
-	Usage: "add new task(s)",
+	Usage: "Add new task(s)",
 	Action: func(w io.Writer, args ...string) error {
-		fName := api.GetFlag("file")
-		if fName == nil {
-			return ErrFlagNotSet
+		f := api.GetFlag("file")
+		if f == nil {
+			return api.ErrInvalidFlag
 		}
 
-		return addAction(os.Stdin, os.Stdout, fName.String(), args...)
+		return addAction(os.Stdin, os.Stdout, f.Value.String(), args...)
 	},
 }
 
