@@ -1,4 +1,4 @@
-package cmds
+package api
 
 import (
 	"errors"
@@ -55,9 +55,9 @@ func TestRegister(t *testing.T) {
 			}
 
 			// Get the added command from the commands map.
-			c := Get(tc.cmd.GetName())
-			if c.GetName() != tc.cmd.GetName() {
-				t.Errorf("Expected command: %s, but got: %s instead", tc.cmd.GetName(), c.GetName())
+			cmd := Get(tc.cmd.GetName())
+			if cmd.GetName() != tc.cmd.GetName() {
+				t.Errorf("Expected command: %s, but got: %s instead", tc.cmd.GetName(), cmd.GetName())
 			}
 		})
 	}
@@ -94,9 +94,9 @@ func TestGet(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := Get(tc.cmdName)
-			if tc.expectedResult != c {
-				t.Errorf("Expected result: %v, but got: %v instead", tc.expectedResult, c)
+			cmd := Get(tc.cmdName)
+			if tc.expectedResult != cmd {
+				t.Errorf("Expected result: %v, but got: %v instead", tc.expectedResult, cmd)
 			}
 		})
 	}
