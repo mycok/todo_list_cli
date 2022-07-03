@@ -5,8 +5,12 @@ import (
 	"fmt"
 )
 
-// ErrDuplicateCmd represents a duplicate command error.
-var ErrDuplicateCmd = errors.New("duplicate command")
+var (
+	// ErrDuplicateCmd represents a duplicate command error.
+	ErrDuplicateCmd = errors.New("duplicate command")
+	// ErrInvalidCmd represents a duplicate command error.
+	ErrInvalidCmd = errors.New("invalid command")
+)
 
 var commands map[string]Command
 

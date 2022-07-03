@@ -25,10 +25,11 @@ var add = api.Cmd{
 }
 
 func addAction(r io.Reader, w io.Writer, fName string, args ...string) error {
+	var err error
 	// Initialize an empty List.
 	l := &todo.List{}
 
-	if err := l.Load(fName); err != nil {
+	if err = l.Load(fName); err != nil {
 		return err
 	}
 

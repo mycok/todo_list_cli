@@ -10,20 +10,20 @@ import (
 	"github.com/mycok/todo_list_cli/todo"
 )
 
-var complete = api.Cmd{
-	Name:  "complete",
-	Usage: "Mark a task as complete",
+var del = api.Cmd{
+	Name:  "del",
+	Usage: "Delete task by providing a task [ID]",
 	Action: func(w io.Writer, args ...string) error {
 		f := api.GetFlag("file")
 		if f == nil {
 			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "file")
 		}
 
-		return completeAction(w, f.Value.String(), args...)
+		return deleteAction(w, f.Value.String(), args...)
 	},
 }
 
-func completeAction(w io.Writer, fName string, args ...string) error {
+func deleteAction(w io.Writer, fName string, args ...string) error {
 	var err error
 
 	l := &todo.List{}
@@ -37,7 +37,7 @@ func completeAction(w io.Writer, fName string, args ...string) error {
 		return err
 	}
 
-	if err = l.Complete(id); err != nil {
+	if err = l.Delete(id); err != nil {
 		return err
 	}
 
@@ -49,7 +49,7 @@ func completeAction(w io.Writer, fName string, args ...string) error {
 }
 
 func init() {
-	if err := api.Register(complete); err != nil {
+	if err := api.Register(del); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
 		os.Exit(1)
