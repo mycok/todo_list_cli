@@ -11,6 +11,38 @@ import (
 )
 
 func Execute() error {
+	fs, err := handleCmdlineFlags()
+	if err != nil {
+		return err
+	}
+
+	switch os.Args[1] {
+	case "add":
+		c := api.Get("add")
+		// TODO: assert to api.Cmd.
+		if c == nil {
+			return nil
+		}
+
+		if err = c.Run(os.Stdout, fs.Args()...); err != nil {
+			return err
+		}
+	default:
+		fmt.Fprintf(
+			os.Stdout,
+			"%sInvalid command!%s\n",
+			colors.Red,
+			colors.Reset,
+		)
+		fmt.Fprintln(os.Stdout)
+		// Show usage information
+		fs.Usage()
+	}
+
+	return nil
+}
+
+func handleCmdlineFlags() (*flag.FlagSet, error) {
 	fs := flag.NewFlagSet("todo_list_cli", flag.ExitOnError)
 	fs.SetOutput(os.Stdout)
 
@@ -68,10 +100,11 @@ func Execute() error {
 	var err error
 
 	if err = fs.Parse(os.Args[2:]); err != nil {
-		return err
+		return nil, err
 	}
 
-	// Add all provided flags to the cmdFlagArgs map.
+	// Walk through all provided flags [both set and unset] and add each
+	// to the cmdFlagArgs map.
 	fs.VisitAll(func(f *flag.Flag) {
 		err = api.AddFlag(f.Name, f.Value)
 		if err != nil {
@@ -82,30 +115,8 @@ func Execute() error {
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	switch os.Args[1] {
-	case "add":
-		c := api.Get("add")
-		if c == nil {
-			return nil
-		}
-
-		if err = c.Run(os.Stdout, fs.Args()...); err != nil {
-			return err
-		}
-	default:
-		fmt.Fprintf(
-			os.Stdout,
-			"%sInvalid command!%s\n",
-			colors.Red,
-			colors.Reset,
-		)
-		fmt.Fprintln(os.Stdout)
-		// Show usage information
-		fs.Usage()
-	}
-
-	return nil
+	return fs, nil
 }
