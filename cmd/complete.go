@@ -16,7 +16,7 @@ var complete = api.Cmd{
 	Action: func(w io.Writer, args ...string) error {
 		f := api.GetFlag("file")
 		if f == nil {
-			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "file")
+			return fmt.Errorf("%w: %q", api.ErrFlagNotFound, "file")
 		}
 
 		return completeAction(w, f.Value.String(), args...)
