@@ -32,15 +32,7 @@ func Run(w io.Writer) error {
 		return executeCmd(w, os.Args[1], fs.Args()...)
 
 	default:
-		fmt.Fprintf(
-			w,
-			"%sInvalid command!%s\n",
-			colors.Red,
-			colors.Reset,
-		)
-		fmt.Fprintln(w)
-		// Show usage information
-		fs.Usage()
+		suggest.Run(w, os.Args[1])
 	}
 
 	return nil
@@ -122,7 +114,7 @@ func handleCmdlineFlags(w io.Writer) (*flag.FlagSet, error) {
 func executeCmd(w io.Writer, cmd string, args ...string) error {
 	c := api.Get(cmd)
 	if c == nil {
-		return fmt.Errorf("%w: %q", api.ErrInvalidCmd, cmd)
+		return fmt.Errorf("%w: %q", api.ErrCmdNotFound, cmd)
 	}
 
 	if err := c.Run(w, args...); err != nil {

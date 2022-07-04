@@ -9,7 +9,7 @@ var (
 	// ErrDuplicateCmd represents a duplicate command error.
 	ErrDuplicateCmd = errors.New("duplicate command")
 	// ErrInvalidCmd represents a duplicate command error.
-	ErrInvalidCmd = errors.New("invalid command")
+	ErrCmdNotFound = errors.New("command not found")
 )
 
 var commands map[string]Command

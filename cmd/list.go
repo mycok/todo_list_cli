@@ -16,17 +16,17 @@ var list = api.Cmd{
 	Action: func(w io.Writer, args ...string) error {
 		f := api.GetFlag("file")
 		if f == nil {
-			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "file")
+			return fmt.Errorf("%w: %q", api.ErrFlagNotFound, "file")
 		}
 
 		d := api.GetFlag("details")
 		if d == nil {
-			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "details")
+			return fmt.Errorf("%w: %q", api.ErrFlagNotFound, "details")
 		}
 
 		c := api.GetFlag("completed")
 		if c == nil {
-			return fmt.Errorf("%w: %q", api.ErrMissingFlag, "completed")
+			return fmt.Errorf("%w: %q", api.ErrFlagNotFound, "completed")
 		}
 
 		return listAction(
